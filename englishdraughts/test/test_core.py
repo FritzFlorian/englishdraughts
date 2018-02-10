@@ -13,6 +13,7 @@ class TestMoveExecution(unittest.TestCase):
         self.assertEqual(next_states[0].board[2][1], core.EMPTY)
         self.assertEqual(next_states[0].get_next_player(), core.PLAYER_TWO)
         self.assertEqual(next_states[0].moves_without_capture, 1)
+        self.assertEqual(next_states[0].last_move, core.DraughtsMove([(1, 2), (0, 3)]))
 
         self.assertEqual(len(next_states[0].get_next_game_states()), 7)
 
@@ -37,6 +38,7 @@ class TestMoveExecution(unittest.TestCase):
         self.assertEqual(next_states[0].board[2][3], core.EMPTY)
         self.assertEqual(next_states[0].board[3][2], core.EMPTY)
         self.assertEqual(next_states[0].board[4][1], core.PLAYER_ONE)
+        self.assertEqual(next_states[0].last_move, core.DraughtsMove([(3, 2), (1, 4)]))
 
     def test_double_capture(self):
         game_state = core.DraughtsGameState()
@@ -57,6 +59,7 @@ class TestMoveExecution(unittest.TestCase):
         self.assertEqual(len(next_states), 2)
         self.assertEqual(next_states[0].stones_left, {core.PLAYER_ONE: 1, core.PLAYER_TWO: 2})
         self.assertEqual(next_states[1].stones_left, {core.PLAYER_ONE: 1, core.PLAYER_TWO: 1})
+        self.assertEqual(next_states[1].last_move, core.DraughtsMove([(3, 2), (5, 4), (7, 6)]))
 
 
 class TestEvaluationConversion(unittest.TestCase):
@@ -74,10 +77,10 @@ class TestEvaluationConversion(unittest.TestCase):
         evaluation.expected_results = {core.PLAYER_ONE: 1, core.PLAYER_TWO: -1}
         to_normal = evaluation.convert_to_normal()
         self.assertEqual(to_normal.next_player, core.PLAYER_ONE)
-        self.assertEqual(evaluation.game_state.next_player, core.PLAYER_ONE)
-        self.assertEqual(evaluation.game_state.board[0][1], core.PLAYER_TWO)
+        self.assertEqual(to_normal.game_state.next_player, core.PLAYER_ONE)
+        self.assertEqual(to_normal.game_state.board[0][1], core.PLAYER_TWO)
         self.assertEqual(to_normal.expected_results, {core.PLAYER_ONE: -1, core.PLAYER_TWO: 1})
 
         from_normal = to_normal.convert_from_normal()
-        self.assertEqual(evaluation.game_state.next_player, core.PLAYER_TWO)
-        self.assertEqual(to_normal.expected_results, {core.PLAYER_ONE: 1, core.PLAYER_TWO: -1})
+        self.assertEqual(from_normal.game_state.next_player, core.PLAYER_TWO)
+        self.assertEqual(from_normal.expected_results, {core.PLAYER_ONE: 1, core.PLAYER_TWO: -1})

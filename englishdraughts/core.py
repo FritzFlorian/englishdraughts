@@ -2,12 +2,6 @@ import hometrainer.core as core
 import hometrainer.util
 
 
-# Directions for moves
-TOP_LEFT = 0
-TOP_RIGHT = 1
-BOTTOM_LEFT = 2
-BOTTOM_RIGHT = 4
-
 # Players
 EMPTY = 0
 PLAYER_ONE = 1
@@ -32,19 +26,23 @@ def opposite_player(player):
 class DraughtsMove(core.Move):
     """ Defines one Move in English Draughts.
 
-    To fully specify a move we need to know which peace to move and in what direction it should be moved.
-    A move is therefore defined as the source of the move, not it's target field.
+    To fully specify a move we need to know all positions that where visited during it.
     """
-    def __init__(self, x, y, direction):
-        self.x = x
-        self.y = y
-        self.direction = direction
+    def __init__(self, positions):
+        self.positions = positions
 
     def __hash__(self):
-        return self.x + 10 * self.y + 100 * self.direction
+        return hash(self.positions)
 
     def __eq__(self, other):
-        return self.x == other.x and self.y == other.y and self.direction == other.direction
+        if len(self.positions) != len(other.positions):
+            return False
+
+        for i in range(len(self.positions)):
+            if self.positions[i] != other.positions[i]:
+                return False
+
+        return True
 
 
 class DraughtsGameState(core.GameState):
@@ -140,26 +138,29 @@ class DraughtsGameState(core.GameState):
 
         return results
 
-    def _capture_move_at(self, x, y, queen_move):
+    def _capture_move_at(self, x, y, queen_move, last_positions=None):
+        if not last_positions:
+            last_positions = [(x, y)]
+
         next_states = []
 
-        x_over, y_over, x_new, y_new= x - 1, y + self._y_direction(), x - 2, y + 2 * self._y_direction()
-        self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states)
+        x_over, y_over, x_new, y_new = x - 1, y + self._y_direction(), x - 2, y + 2 * self._y_direction()
+        self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states, last_positions)
 
         x_over, y_over, x_new, y_new = x + 1, y + self._y_direction(), x + 2, y + 2 * self._y_direction()
-        self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states)
+        self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states, last_positions)
 
         # Moving 'backwards' is only ok if we have a queen
         if queen_move:
             x_over, y_over, x_new, y_new = x - 1, y - self._y_direction(), x - 2, y - 2 * self._y_direction()
-            self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states)
+            self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states, last_positions)
 
             x_over, y_over, x_new, y_new = x + 1, y - self._y_direction(), x + 2, y - 2 * self._y_direction()
-            self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states)
+            self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states, last_positions)
 
         return next_states
 
-    def _capture_move_from_to_over(self, x, y, x_new, y_new, x_over, y_over, queen_move, result_list):
+    def _capture_move_from_to_over(self, x, y, x_new, y_new, x_over, y_over, queen_move, result_list, last_positions):
         if not (self.BOARD_SIZE > x_new >= 0 and self.BOARD_SIZE > y_new >= 0):
             return
 
@@ -177,8 +178,13 @@ class DraughtsGameState(core.GameState):
         new_state.stones_left[opposite_player(self.next_player)] = \
             self.stones_left[opposite_player(self.next_player)] - 1
 
+        # Store last move
+        last_positions = hometrainer.util.deepcopy(last_positions)
+        last_positions.append((x_new, y_new))
+        new_state.last_move = DraughtsMove(last_positions)
+
         # Check if the jumps end's here
-        further_jumps = new_state._capture_move_at(x_new, y_new, queen_move)
+        further_jumps = new_state._capture_move_at(x_new, y_new, queen_move, last_positions)
         if len(further_jumps) > 0:
             result_list.extend(further_jumps)
         else:
@@ -199,7 +205,7 @@ class DraughtsGameState(core.GameState):
             self._normal_move_from_to(x, y, x_new, y_new, next_states)
 
             x_new, y_new = x + 1, y - self._y_direction()
-            self._normal_move_from_to(x, y , x_new, y_new, next_states)
+            self._normal_move_from_to(x, y, x_new, y_new, next_states)
 
         return next_states
 
@@ -208,6 +214,7 @@ class DraughtsGameState(core.GameState):
             new_state = hometrainer.util.deepcopy(self)
             new_state.board[y][x] = EMPTY
             new_state.board[y_new][x_new] = self.next_player
+            new_state.last_move = DraughtsMove([(x, y), (x_new, y_new)])
             result_list.append(new_state)
 
     def _y_direction(self):
