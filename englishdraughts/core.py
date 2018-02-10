@@ -28,21 +28,19 @@ class DraughtsMove(core.Move):
 
     To fully specify a move we need to know all positions that where visited during it.
     """
-    def __init__(self, positions):
-        self.positions = positions
+    def __init__(self, x_old, y_old, x_new, y_new):
+        self.x_old = x_old
+        self.y_old = y_old
+
+        self.x_new = x_new
+        self.y_new = y_new
 
     def __hash__(self):
-        return hash(self.positions)
+        return self.x_old + 10 * self.y_old + 100 * self.x_new + 1000 * self.y_new
 
     def __eq__(self, other):
-        if len(self.positions) != len(other.positions):
-            return False
-
-        for i in range(len(self.positions)):
-            if self.positions[i] != other.positions[i]:
-                return False
-
-        return True
+        return (self.x_old == other.x_old and self.y_old == other.y_old and
+                self.x_new == other.x_new and self.y_new == other.y_new)
 
 
 class DraughtsGameState(core.GameState):
@@ -66,6 +64,10 @@ class DraughtsGameState(core.GameState):
         self.next_player = PLAYER_ONE
         self.stones_left = {PLAYER_ONE: 12, PLAYER_TWO: 12}
         self.moves_without_capture = 0
+
+        # 'multiple' capture moves (capturing more than one stone in one turn)
+        # is handled as a 'multi turn' move to allow simpler encoding for the neural network.
+        self.force_capture_move_at = None
 
     def wrap_in_evaluation(self):
         return DraughtsGameEvaluation(self)
@@ -91,6 +93,19 @@ class DraughtsGameState(core.GameState):
 
         return None
 
+    def player_number_at(self, x, y):
+        if self.board[y][x] == PLAYER_ONE or self.board[y][x] == PLAYER_ONE_QUEEN:
+            return PLAYER_ONE
+        if self.board[y][x] == PLAYER_TWO or self.board[y][x] == PLAYER_TWO_QUEEN:
+            return PLAYER_TWO
+        return EMPTY
+
+    def _next_player_queen(self):
+        if self.next_player == PLAYER_ONE:
+            return PLAYER_ONE_QUEEN
+        if self.next_player == PLAYER_TWO:
+            return PLAYER_TWO_QUEEN
+
     def get_next_game_states(self):
         next_states = []
         next_states_with_capture = []
@@ -102,11 +117,25 @@ class DraughtsGameState(core.GameState):
         if self.stones_left[PLAYER_ONE] == 0 or self.stones_left[PLAYER_TWO] == 0:
             return next_states
 
+        # Handle multiple capture moves
+        if self.force_capture_move_at:
+            x, y = self.force_capture_move_at
+
+            # Move must start at the next players position
+            player = self.player_number_at(x, y)
+
+            # Queens can move backward
+            queen_move = False
+            if player == PLAYER_ONE_QUEEN or player == PLAYER_TWO_QUEEN:
+                queen_move = True
+
+            return self._capture_move_at(x, y, queen_move)
+
         for y in range(self.BOARD_SIZE):
             even_bit = (y + 1) % 2  # We need to add 1 to every second row
             for x in range(even_bit, 8, 2):
                 # Move must start at the next players position
-                player = self.board[y][x]
+                player = self.player_number_at(x, y)
                 if player != self.next_player:
                     continue
 
@@ -132,39 +161,37 @@ class DraughtsGameState(core.GameState):
 
         # Change the next player allowed to move and capture move limits...
         for result in results:
-            result.next_player = opposite_player(self.next_player)
+            if not result.force_capture_move_at:
+                result.next_player = opposite_player(self.next_player)
             if not capture_move:
                 result.moves_without_capture = self.moves_without_capture + 1
 
         return results
 
-    def _capture_move_at(self, x, y, queen_move, last_positions=None):
-        if not last_positions:
-            last_positions = [(x, y)]
-
+    def _capture_move_at(self, x, y, queen_move):
         next_states = []
 
         x_over, y_over, x_new, y_new = x - 1, y + self._y_direction(), x - 2, y + 2 * self._y_direction()
-        self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states, last_positions)
+        self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states)
 
         x_over, y_over, x_new, y_new = x + 1, y + self._y_direction(), x + 2, y + 2 * self._y_direction()
-        self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states, last_positions)
+        self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states)
 
         # Moving 'backwards' is only ok if we have a queen
         if queen_move:
             x_over, y_over, x_new, y_new = x - 1, y - self._y_direction(), x - 2, y - 2 * self._y_direction()
-            self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states, last_positions)
+            self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states)
 
             x_over, y_over, x_new, y_new = x + 1, y - self._y_direction(), x + 2, y - 2 * self._y_direction()
-            self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states, last_positions)
+            self._capture_move_from_to_over(x, y, x_new, y_new, x_over, y_over, queen_move, next_states)
 
         return next_states
 
-    def _capture_move_from_to_over(self, x, y, x_new, y_new, x_over, y_over, queen_move, result_list, last_positions):
+    def _capture_move_from_to_over(self, x, y, x_new, y_new, x_over, y_over, queen_move, result_list):
         if not (self.BOARD_SIZE > x_new >= 0 and self.BOARD_SIZE > y_new >= 0):
             return
 
-        if self.board[y_over][x_over] != opposite_player(self.next_player):
+        if self.player_number_at(x_over, y_over) != opposite_player(self.next_player):
             return
 
         if self.board[y_new][x_new] != EMPTY:
@@ -174,47 +201,60 @@ class DraughtsGameState(core.GameState):
         new_state = hometrainer.util.deepcopy(self)
         new_state.board[y_over][x_over] = EMPTY
         new_state.board[y][x] = EMPTY
-        new_state.board[y_new][x_new] = self.next_player
+        if queen_move:
+            new_state.board[y_new][x_new] = self._next_player_queen()
+        else:
+            if y_new == self.BOARD_SIZE - 1 or y_new == 0:
+                new_state.board[y_new][x_new] = self._next_player_queen()
+            else:
+                new_state.board[y_new][x_new] = self.next_player
         new_state.stones_left[opposite_player(self.next_player)] = \
             self.stones_left[opposite_player(self.next_player)] - 1
 
         # Store last move
-        last_positions = hometrainer.util.deepcopy(last_positions)
-        last_positions.append((x_new, y_new))
-        new_state.last_move = DraughtsMove(last_positions)
+        new_state.last_move = DraughtsMove(x, y, x_new, y_new)
 
         # Check if the jumps end's here
-        further_jumps = new_state._capture_move_at(x_new, y_new, queen_move, last_positions)
+        further_jumps = new_state._capture_move_at(x_new, y_new, queen_move)
         if len(further_jumps) > 0:
-            result_list.extend(further_jumps)
+            new_state.force_capture_move_at = (x_new, y_new)
         else:
-            result_list.append(new_state)
+            new_state.force_capture_move_at = None
+
+        result_list.append(new_state)
 
     def _normal_move_at(self, x, y, queen_move):
         next_states = []
 
         x_new, y_new = x - 1, y + self._y_direction()
-        self._normal_move_from_to(x, y, x_new, y_new, next_states)
+        self._normal_move_from_to(x, y, x_new, y_new, next_states, queen_move)
 
         x_new, y_new = x + 1, y + self._y_direction()
-        self._normal_move_from_to(x, y, x_new, y_new, next_states)
+        self._normal_move_from_to(x, y, x_new, y_new, next_states, queen_move)
 
         # Moving 'backwards' is only ok if we have a queen
         if queen_move:
             x_new, y_new = x - 1, y - self._y_direction()
-            self._normal_move_from_to(x, y, x_new, y_new, next_states)
+            self._normal_move_from_to(x, y, x_new, y_new, next_states, queen_move)
 
             x_new, y_new = x + 1, y - self._y_direction()
-            self._normal_move_from_to(x, y, x_new, y_new, next_states)
+            self._normal_move_from_to(x, y, x_new, y_new, next_states, queen_move)
 
         return next_states
 
-    def _normal_move_from_to(self, x, y, x_new, y_new, result_list):
+    def _normal_move_from_to(self, x, y, x_new, y_new, result_list, queen_move):
         if self.BOARD_SIZE > x_new >= 0 and self.BOARD_SIZE > y_new >= 0 and self.board[y_new][x_new] == EMPTY:
             new_state = hometrainer.util.deepcopy(self)
             new_state.board[y][x] = EMPTY
-            new_state.board[y_new][x_new] = self.next_player
-            new_state.last_move = DraughtsMove([(x, y), (x_new, y_new)])
+            if queen_move:
+                new_state.board[y_new][x_new] = self._next_player_queen()
+            else:
+                if y_new == self.BOARD_SIZE - 1 or y_new == 0:
+                    new_state.board[y_new][x_new] = self._next_player_queen()
+                else:
+                    new_state.board[y_new][x_new] = self.next_player
+            new_state.last_move = DraughtsMove(x, y, x_new, y_new)
+            new_state.force_capture_move_at = None
             result_list.append(new_state)
 
     def _y_direction(self):
