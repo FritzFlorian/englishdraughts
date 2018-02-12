@@ -32,15 +32,22 @@ class DraughtsMove(core.Move):
         self.x_old = x_old
         self.y_old = y_old
 
-        self.x_new = x_new
-        self.y_new = y_new
+        if self.x_old < x_new:
+            if self.y_old < y_new:
+                self.direction = 0
+            else:
+                self.direction = 1
+        else:
+            if self.y_old < y_new:
+                self.direction = 2
+            else:
+                self.direction = 3
 
     def __hash__(self):
-        return self.x_old + 10 * self.y_old + 100 * self.x_new + 1000 * self.y_new
+        return self.x_old + 10 * self.y_old + 100 * self.direction
 
     def __eq__(self, other):
-        return (self.x_old == other.x_old and self.y_old == other.y_old and
-                self.x_new == other.x_new and self.y_new == other.y_new)
+        return self.x_old == other.x_old and self.y_old == other.y_old and self.direction == other.direction
 
 
 class DraughtsGameState(core.GameState):
@@ -73,12 +80,13 @@ class DraughtsGameState(core.GameState):
         return DraughtsGameEvaluation(self)
 
     def calculate_scores(self):
-        if self.stones_left[PLAYER_ONE] > 0 and self.stones_left[PLAYER_TWO] > 0:
+        if self.moves_without_capture >= self.MAX_MOVES_WITHOUT_CAPTURE:
             return {PLAYER_ONE: 0, PLAYER_TWO: 0}
 
-        if self.stones_left[PLAYER_ONE] > 0:
+        # Player who could not make a move looses
+        if self.next_player == PLAYER_TWO:
             return {PLAYER_ONE: 1, PLAYER_TWO: -1}
-        if self.stones_left[PLAYER_TWO] > 0:
+        else:
             return {PLAYER_ONE: -1, PLAYER_TWO: 1}
 
     def get_last_move(self):
@@ -163,6 +171,7 @@ class DraughtsGameState(core.GameState):
         for result in results:
             if not result.force_capture_move_at:
                 result.next_player = opposite_player(self.next_player)
+                result.moves_without_capture = 0
             if not capture_move:
                 result.moves_without_capture = self.moves_without_capture + 1
 
