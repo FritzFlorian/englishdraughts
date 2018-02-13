@@ -1,0 +1,480 @@
+{
+    "settings": {
+        "batch_size": 1024,
+        "training_history_size": 128,
+        "simulations_per_turn": 156,
+        "turn_time": "0.75",
+        "n_self_play": 70,
+        "n_self_eval": 14,
+        "n_ai_eval": 14,
+        "needed_avg_score": "0.05"
+    },
+    "progress": {
+        "state": "SELFPLAY",
+        "n_remaining": 56,
+        "iteration": 20,
+        "current_batch": 5810
+    },
+    "iterations": [
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": -2,
+                "new_score": 2,
+                "start_batch": 75,
+                "end_batch": 112,
+                "new_better": true,
+                "avg_score": "0.14286"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 112,
+                "end_batch": 0,
+                "nn_score": -14,
+                "ai_score": 14
+            },
+            "self_play": {
+                "n_games": 42,
+                "start_batch": 0,
+                "end_batch": 75
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": -3,
+                "new_score": 3,
+                "start_batch": 438,
+                "end_batch": 470,
+                "new_better": true,
+                "avg_score": "0.21429"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 470,
+                "end_batch": 240,
+                "nn_score": -10,
+                "ai_score": 10
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 240,
+                "end_batch": 438
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": 0,
+                "new_score": 0,
+                "start_batch": 733,
+                "end_batch": 762,
+                "new_better": false,
+                "avg_score": "0.0"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 762,
+                "end_batch": 588,
+                "nn_score": -12,
+                "ai_score": 12
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 588,
+                "end_batch": 733
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": -8,
+                "new_score": 8,
+                "start_batch": 1014,
+                "end_batch": 1047,
+                "new_better": true,
+                "avg_score": "0.57143"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 1047,
+                "end_batch": 868,
+                "nn_score": -12,
+                "ai_score": 12
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 868,
+                "end_batch": 1014
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": -3,
+                "new_score": 3,
+                "start_batch": 1320,
+                "end_batch": 1349,
+                "new_better": true,
+                "avg_score": "0.21429"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 1349,
+                "end_batch": 1161,
+                "nn_score": 7,
+                "ai_score": -7
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 1161,
+                "end_batch": 1320
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": 5,
+                "new_score": -5,
+                "start_batch": 1604,
+                "end_batch": 1633,
+                "new_better": false,
+                "avg_score": "-0.35714"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 1633,
+                "end_batch": 1447,
+                "nn_score": 5,
+                "ai_score": -5
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 1447,
+                "end_batch": 1604
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": -2,
+                "new_score": 2,
+                "start_batch": 1887,
+                "end_batch": 1919,
+                "new_better": true,
+                "avg_score": "0.14286"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 1919,
+                "end_batch": 1725,
+                "nn_score": -4,
+                "ai_score": 4
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 1725,
+                "end_batch": 1887
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": 12,
+                "new_score": -12,
+                "start_batch": 2202,
+                "end_batch": 2236,
+                "new_better": false,
+                "avg_score": "-0.85714"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 2236,
+                "end_batch": 2039,
+                "nn_score": -3,
+                "ai_score": 3
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 2039,
+                "end_batch": 2202
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": -2,
+                "new_score": 2,
+                "start_batch": 2503,
+                "end_batch": 2533,
+                "new_better": true,
+                "avg_score": "0.14286"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 2533,
+                "end_batch": 2346,
+                "nn_score": 2,
+                "ai_score": -2
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 2346,
+                "end_batch": 2503
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": -6,
+                "new_score": 6,
+                "start_batch": 2799,
+                "end_batch": 2838,
+                "new_better": true,
+                "avg_score": "0.42857"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 2838,
+                "end_batch": 2644,
+                "nn_score": 0,
+                "ai_score": 0
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 2644,
+                "end_batch": 2799
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": -7,
+                "new_score": 7,
+                "start_batch": 3123,
+                "end_batch": 3155,
+                "new_better": true,
+                "avg_score": "0.5"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 3155,
+                "end_batch": 2948,
+                "nn_score": -3,
+                "ai_score": 3
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 2948,
+                "end_batch": 3123
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": 3,
+                "new_score": -3,
+                "start_batch": 3443,
+                "end_batch": 3476,
+                "new_better": false,
+                "avg_score": "-0.21429"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 3476,
+                "end_batch": 3260,
+                "nn_score": 1,
+                "ai_score": -1
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 3260,
+                "end_batch": 3443
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": -11,
+                "new_score": 11,
+                "start_batch": 3732,
+                "end_batch": 3768,
+                "new_better": true,
+                "avg_score": "0.78571"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 3768,
+                "end_batch": 3585,
+                "nn_score": 6,
+                "ai_score": -6
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 3585,
+                "end_batch": 3732
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": 10,
+                "new_score": -10,
+                "start_batch": 4039,
+                "end_batch": 4071,
+                "new_better": false,
+                "avg_score": "-0.71429"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 4071,
+                "end_batch": 3883,
+                "nn_score": 6,
+                "ai_score": -6
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 3883,
+                "end_batch": 4039
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": 7,
+                "new_score": -7,
+                "start_batch": 4322,
+                "end_batch": 4356,
+                "new_better": false,
+                "avg_score": "-0.5"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 4356,
+                "end_batch": 4152,
+                "nn_score": 5.0,
+                "ai_score": -5.0
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 4152,
+                "end_batch": 4322
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": 0.0,
+                "new_score": 0.0,
+                "start_batch": 4656,
+                "end_batch": 4690,
+                "new_better": false,
+                "avg_score": "0.0"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 4690,
+                "end_batch": 4500,
+                "nn_score": 11.0,
+                "ai_score": -11.0
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 4500,
+                "end_batch": 4656
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": -12.0,
+                "new_score": 12.0,
+                "start_batch": 4984,
+                "end_batch": 5015,
+                "new_better": true,
+                "avg_score": "0.85714"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 5015,
+                "end_batch": 4829,
+                "nn_score": -1.0,
+                "ai_score": 1.0
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 4829,
+                "end_batch": 4984
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": 1.0,
+                "new_score": -1.0,
+                "start_batch": 5294,
+                "end_batch": 5330,
+                "new_better": false,
+                "avg_score": "-0.07143"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 5330,
+                "end_batch": 5136,
+                "nn_score": 6.0,
+                "ai_score": -6.0
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 5136,
+                "end_batch": 5294
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 14,
+                "old_score": -6.0,
+                "new_score": 6.0,
+                "start_batch": 5617,
+                "end_batch": 5650,
+                "new_better": true,
+                "avg_score": "0.42857"
+            },
+            "ai_eval": {
+                "n_games": 14,
+                "start_batch": 5650,
+                "end_batch": 5463,
+                "nn_score": 10.0,
+                "ai_score": -10.0
+            },
+            "self_play": {
+                "n_games": 70,
+                "start_batch": 5463,
+                "end_batch": 5617
+            }
+        },
+        {
+            "self_eval": {
+                "n_games": 0,
+                "old_score": 0,
+                "new_score": 0,
+                "start_batch": 0,
+                "end_batch": 0,
+                "new_better": false,
+                "avg_score": "0.0"
+            },
+            "ai_eval": {
+                "n_games": 0,
+                "start_batch": 0,
+                "end_batch": 5770,
+                "nn_score": 0,
+                "ai_score": 0
+            },
+            "self_play": {
+                "n_games": 14,
+                "start_batch": 5770,
+                "end_batch": 0
+            }
+        }
+    ]
+}
