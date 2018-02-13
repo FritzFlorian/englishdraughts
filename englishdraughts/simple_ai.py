@@ -1,31 +1,31 @@
-import hometrainer.core
 import englishdraughts.core
 import time
+import hometrainer.agents as agents
 
 
-class SimpleAI:
+class SimpleAI(agents.Agent):
     """Very simple min-max ai to compare against the training progress."""
     def __init__(self):
         pass
 
-    def find_timed_move(self, game_state, turn_time):
-        turn_end = time.time() + turn_time
+    def find_move_with_time_limit(self, game_state, move_time):
+        turn_end = time.time() + move_time
 
         for depth in range(1, 100):
-            best_move = self.find_move(game_state, depth)
+            best_move = self.find_move_with_iteration_limit(game_state, depth)
             if time.time() > turn_end and best_move:
                 break
 
         return best_move
 
-    def find_move(self, game_state, depth):
+    def find_move_with_iteration_limit(self, game_state, move_iterations):
         child_states = game_state.get_next_game_states()
         our_player = game_state.get_next_player()
 
         best_move = None
         best_value = -100
         for child_state in child_states:
-            child_value = self._state_value(child_state, our_player, depth - 1, -100, 100)
+            child_value = self._state_value(child_state, our_player, move_iterations - 1, -100, 100)
 
             if child_value > best_value:
                 best_move = child_state.get_last_move()
@@ -74,31 +74,3 @@ class SimpleAI:
                     break  # Cutoff
 
             return best_value
-
-
-class SimpleExternalAIEvaluator(hometrainer.core.ExternalEvaluator):
-    def __init__(self, nn_client, start_game_state, config):
-        super().__init__(nn_client, start_game_state, config)
-
-        self.simple_ai = SimpleAI()
-
-    def external_ai_select_move(self, current_game_state, turn_time):
-        return self.simple_ai.find_timed_move(current_game_state, turn_time)
-
-
-if __name__ == '__main__':
-    game_state = englishdraughts.core.DraughtsGameState()
-
-    ai = SimpleAI()
-    next_states = game_state.get_next_game_states()
-    while len(next_states) > 0:
-        if game_state.next_player == englishdraughts.core.PLAYER_ONE:
-            move = ai.find_move(game_state, 4)
-        else:
-            move = ai.find_move(game_state, 1)
-
-        game_state = game_state.execute_move(move)
-        next_states = game_state.get_next_game_states()
-
-    print(game_state.stones_left)
-    print(game_state.calculate_scores())

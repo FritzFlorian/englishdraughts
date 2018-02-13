@@ -1,7 +1,6 @@
 import tensorflow as tf
 import englishdraughts.input_output_conversion as input_output_conversion
-import hometrainer.nn_base
-import numpy as np
+import hometrainer.neural_network
 
 BOARD_HEIGHT = 8
 BOARD_WIDTH = 8
@@ -16,7 +15,7 @@ L2_LOSS_WEIGHT = 0.002
 VALUE_LOSS_WEIGHT = 2.0
 
 
-class SimpleNeuralNetwork(hometrainer.nn_base.NeuralNetwork):
+class SimpleNeuralNetwork(hometrainer.neural_network.NeuralNetwork):
     def input_conversion_function(self):
         return input_output_conversion.input
 
