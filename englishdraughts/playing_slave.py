@@ -1,3 +1,4 @@
+"""Helper script to run the playing slave."""
 import hometrainer.distribution as distribution
 import logging
 import hometrainer.config

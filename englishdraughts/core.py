@@ -1,3 +1,8 @@
+"""The main classes needed to run AlphaZero on english draughts.
+
+The game rules are the only information needed to run the training.
+For this we define what a game state, a move and a evaluation of a game state is.
+"""
 import hometrainer.core as core
 import hometrainer.util
 
@@ -26,7 +31,8 @@ def opposite_player(player):
 class DraughtsMove(core.Move):
     """ Defines one Move in English Draughts.
 
-    To fully specify a move we need to know all positions that where visited during it.
+    Multiple captures will be split into multiple individual moves.
+    This allows to simply note a move as the old and new position of a piece on the board.
     """
     def __init__(self, x_old, y_old, x_new, y_new):
         self.x_old = x_old
@@ -51,6 +57,9 @@ class DraughtsMove(core.Move):
 
 
 class DraughtsGameState(core.GameState):
+    """The game state defines all game rules.
+
+    This is mainly what a current game state looks like and what moves are possible."""
     BOARD_SIZE = 8
     START_BOARD = [
         [EMPTY, PLAYER_ONE] * 4,
@@ -80,6 +89,7 @@ class DraughtsGameState(core.GameState):
         return DraughtsGameEvaluation(self)
 
     def calculate_scores(self):
+        """We need the game rules for assigning scores to final game states."""
         if self.moves_without_capture >= self.MAX_MOVES_WITHOUT_CAPTURE:
             return {PLAYER_ONE: 0, PLAYER_TWO: 0}
 
@@ -93,6 +103,7 @@ class DraughtsGameState(core.GameState):
         return self.last_move
 
     def execute_move(self, move: DraughtsMove):
+        """Execute the given DraughtsMove and return the resulting game state."""
         next_states = self.get_next_game_states()
 
         for next_state in next_states:
@@ -115,6 +126,7 @@ class DraughtsGameState(core.GameState):
             return PLAYER_TWO_QUEEN
 
     def get_next_game_states(self):
+        """The core game rules. These describe all possible successor game states of this game state."""
         next_states = []
         next_states_with_capture = []
         capture_move = False
@@ -279,6 +291,7 @@ class DraughtsGameState(core.GameState):
 
 
 class DraughtsGameEvaluation(core.Evaluation):
+    """The evaluation is the 'bridge' between game state and evaluations of the neural network."""
     def __init__(self, game_state):
         super().__init__(game_state)
 
@@ -301,6 +314,16 @@ class DraughtsGameEvaluation(core.Evaluation):
         self.expected_results = expected_results
 
     def convert_to_normal(self):
+        """The conversion to normal changes the evaluation so that the current active player is player one.
+
+        This is no must and can also be replaced by a different board encoding.
+        It is implemented here, to show how it can work. It is extremly useful to games
+        that do not care about board orientation. In english draughts it might be more
+        useful to tell the neural network the current active player instead fo
+        rotating the player numbers to make player one the current active player.
+
+        :return: The normal form of this evaluation.
+        """
         if self.game_state.get_next_player() == PLAYER_ONE:
             return self
 

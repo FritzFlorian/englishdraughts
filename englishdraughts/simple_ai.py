@@ -1,3 +1,4 @@
+"""Simple alpha-beta ai to compare against during the training."""
 import englishdraughts.core
 import time
 import hometrainer.agents as agents

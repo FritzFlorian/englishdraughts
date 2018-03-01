@@ -1,3 +1,4 @@
+"""Used by the neural network to convert an evaluation to raw number arrays and vice versa."""
 import numpy as np
 import englishdraughts.core as core
 import hometrainer.util
@@ -10,6 +11,7 @@ BOARD_WIDTH = 8
 
 
 def input(evaluation, calculate_target=False):
+    """Converts an evaluation to an number array that is fed to the neural network."""
     normal_evaluation = evaluation.convert_to_normal()
     game_state = normal_evaluation.game_state
 
@@ -56,6 +58,9 @@ def _add_possible_moves(input_array, game_state):
 
 
 def output(evaluation, output_array):
+    """Adds the results form an output array into an evaluation."""
+
+    # First filter out invalid moves and reshape the result to be an probability distribution.
     output_array_probabilities = output_array[0:-1]
     filter = np.zeros(BOARD_HEIGHT * BOARD_WIDTH * 4)
     for move, prob in evaluation.get_move_probabilities().items():
@@ -65,6 +70,7 @@ def output(evaluation, output_array):
     output_sum = np.sum(output_array_probabilities)
     output_array_probabilities = output_array_probabilities / output_sum
 
+    # Then fill the evaluation with the resulting values.
     for move, prob in hometrainer.util.deepcopy(evaluation.get_move_probabilities()).items():
         evaluation.get_move_probabilities()[move] = output_array_probabilities[_move_index(move)]
 

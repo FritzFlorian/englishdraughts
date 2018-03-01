@@ -1,3 +1,4 @@
+"""Helper script to plot the winrate against an external agent during training."""
 import hometrainer.util
 
 

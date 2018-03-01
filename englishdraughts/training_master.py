@@ -1,3 +1,4 @@
+"""Helper script to run the training master."""
 import hometrainer.distribution as distribution
 import englishdraughts.core
 import logging
