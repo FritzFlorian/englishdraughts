@@ -18,6 +18,7 @@ def main():
     # config._training_batch_size = 256
     config._training_batch_size = 1024
     config._c_puct = 2
+    config._nn_log_step_size = 25
     training_master = distribution.TrainingMaster('work_dir', 'englishdraughts.neural_network.SimpleNeuralNetwork',
                                                   [englishdraughts.core.DraughtsGameState()], config=config)
     training_master.run()

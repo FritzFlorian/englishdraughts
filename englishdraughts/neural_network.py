@@ -107,7 +107,10 @@ class SimpleNeuralNetwork(hometrainer.neural_network.NeuralNetwork):
         with tf.variable_scope('Training'):
             # Use a simpler optimizer to avoid issues because of it
             optimizer = tf.train.MomentumOptimizer(0.005, 0.9)
-            self.training_op = optimizer.minimize(self.loss)
+
+            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+            with tf.control_dependencies(update_ops):
+                self.training_op = optimizer.minimize(self.loss)
 
         with tf.variable_scope('Logging'):
             self.saver = tf.train.Saver()
@@ -150,7 +153,7 @@ class SimpleNeuralNetwork(hometrainer.neural_network.NeuralNetwork):
                 padding="same",
                 activation=activation,
                 kernel_regularizer=tf.contrib.layers.l2_regularizer(L2_LOSS_WEIGHT))
-            if normalization:
+            if not normalization:
                 return conv
 
             return tf.layers.batch_normalization(conv, training=self.training)
